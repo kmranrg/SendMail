@@ -6,10 +6,6 @@ from email.mime.text import MIMEText
 def send_email(receiver_email, subject, message, message_type):
     # email configurations
     sender_email = 'smartgurucool@gmail.com'
-    receiver_email = receiver_email
-    subject = subject
-    message = open('message.html').read()
-    message_type = str(message_type)
 
     # email server configuration for gmail
     smtp_server = 'smtp.gmail.com'
@@ -22,7 +18,7 @@ def send_email(receiver_email, subject, message, message_type):
     msg['From'] = sender_email
     msg['To'] = receiver_email
     msg['Subject'] = subject
-    msg.attach(MIMEText(message,message_type))
+    msg.attach(MIMEText(message,str(message_type)))
 
     # connecting to SMTP server
     try:
@@ -32,9 +28,9 @@ def send_email(receiver_email, subject, message, message_type):
 
         # send the email
         server.sendmail(sender_email, receiver_email, msg.as_string())
-        print('Email sent successfully')
+        server.quit() # quit the server
+        return 'Email sent successfully'
 
     except Exception as e:
-        print('Error sending email:',str(e))
-    finally:
-        server.quit() # quit the server
+        return 'Error sending email:',str(e)
+        

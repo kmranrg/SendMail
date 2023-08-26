@@ -6,8 +6,9 @@ def main(page: ft.Page):
     page.theme_mode = "light"
     page.theme = ft.theme.Theme(color_scheme_seed="blue")
     page.window_bgcolor = '#00598f' 
+    mail_status = ft.Text(text_align="center")
     page.snack_bar = ft.SnackBar(
-        content=ft.Text("Mail sent successfully!",text_align="center"),
+        content=mail_status,
         bgcolor='#00598f'
     )
 
@@ -26,6 +27,10 @@ def main(page: ft.Page):
     )
 
     def send_mail(e):
+        type_of_message = 'plain'
+        if message_type.value == True:
+            type_of_message = 'html'
+        mail_status.value = send_email(to.value,subject.value,message.value,type_of_message)
         page.snack_bar.open = True
         page.update()
 
