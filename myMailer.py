@@ -3,12 +3,13 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-def send_email():
+def send_email(receiver_email, subject, message, message_type):
     # email configurations
     sender_email = 'smartgurucool@gmail.com'
-    receiver_email = 'me@kmranrg.com'
-    subject = 'Welcome to the New Course!'
+    receiver_email = receiver_email
+    subject = subject
     message = open('message.html').read()
+    message_type = str(message_type)
 
     # email server configuration for gmail
     smtp_server = 'smtp.gmail.com'
@@ -21,7 +22,7 @@ def send_email():
     msg['From'] = sender_email
     msg['To'] = receiver_email
     msg['Subject'] = subject
-    msg.attach(MIMEText(message,'html'))
+    msg.attach(MIMEText(message,message_type))
 
     # connecting to SMTP server
     try:
