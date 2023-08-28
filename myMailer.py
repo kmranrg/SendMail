@@ -2,8 +2,10 @@
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
-def send_email(receiver_email, subject, message, message_type):
+def send_email(receiver_email, subject, message, message_type, attachment_files):
     # email configurations
     sender_email = 'smartgurucool@gmail.com'
 
@@ -19,6 +21,15 @@ def send_email(receiver_email, subject, message, message_type):
     msg['To'] = receiver_email
     msg['Subject'] = subject
     msg.attach(MIMEText(message,str(message_type)))
+
+    # attaching a file
+    for attachment_file in attachment_files:
+        attachment = open(attachment_file,'rb')
+        base = MIMEBase('application','octet-stream')
+        base.set_payload((attachment).read())
+        encoders.encode_base64(base)
+        base.add_header('Content-Disposition', f'attachment; filename={attachment_file}')
+        msg.attach(base)
 
     # connecting to SMTP server
     try:
