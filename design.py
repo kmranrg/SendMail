@@ -1,5 +1,6 @@
 from myMailer import send_email
 import flet as ft
+from typing import Dict
 
 def main(page: ft.Page):
     page.title = "SendMail"
@@ -11,6 +12,46 @@ def main(page: ft.Page):
         content=mail_status,
         bgcolor='#00598f'
     )
+
+    prog_bars: Dict[str, ft.ProgressRing] = {}
+    files = ft.Ref[ft.Column]()
+    upload_button = ft.Ref[ft.ElevatedButton]()
+    attachment_files = []
+
+    def file_picker_result(e: ft.FilePickerResultEvent):
+        upload_button.current.disabled = True if e.files is None else False
+        prog_bars.clear()
+        files.current.controls.clear()
+        if e.files is not None:
+            for f in e.files:
+                prog = ft.ProgressRing(value=0, bgcolor='#eeeeee', width=20, height=20)
+                prog_bars[f.name] = prog
+                files.current.controls.append(ft.Row([prog, ft.Text(f.name)]))
+        page.update()
+
+    def on_upload_progress(e: ft.FilePickerUploadEvent):
+        prog_bars[e.file_name].value = e.progress
+        prog_bars[e.file_name].update()
+
+    file_picker = ft.FilePicker(on_result=file_picker_result, on_upload=on_upload_progress)
+
+    def upload_files(e):
+        uf = []
+        if file_picker.result is not None and file_picker.result.files is not None:
+            for f in file_picker.result.files:
+                attachment_files.append("attachments/"+str(f.name))
+                print(attachment_files)
+                uf.append(
+                    ft.FilePickerUploadFile(
+                        f.name,
+                        upload_url=page.get_upload_url(f.name, 600)
+                    )
+                )
+            file_picker.upload(uf)
+    
+    # hiding dialog in an overlay
+    page.overlay.append(file_picker)
+
 
     logo = ft.Image(src=f"logo\mail_logo.png", height=150)
     to = ft.TextField(label="To", border_radius=30, border="none")
@@ -30,7 +71,7 @@ def main(page: ft.Page):
         type_of_message = 'plain'
         if message_type.value == True:
             type_of_message = 'html'
-        mail_status.value = send_email(to.value,subject.value,message.value,type_of_message)
+        mail_status.value = send_email(to.value,subject.value,message.value,type_of_message,attachment_files)
         page.snack_bar.open = True
         page.update()
 
@@ -58,7 +99,24 @@ def main(page: ft.Page):
                         logo,
                         to,
                         subject,
-                        ft.Row([message_type],alignment="center"),
+                        ft.Row([
+                            message_type,
+                            ft.ElevatedButton(
+                                "Attachment",
+                                icon=ft.icons.ATTACH_FILE,
+                                on_click=lambda _: file_picker.pick_files(allow_multiple=True)
+                            ),
+                            ft.Column(
+                                ref=files
+                            ),
+                            ft.ElevatedButton(
+                                "Upload File(s)",
+                                ref=upload_button,
+                                icon=ft.icons.UPLOAD,
+                                on_click=upload_files,
+                                disabled=True
+                            )
+                        ],alignment="center"),
                         message,
                         
                         ft.Container(height=100),
@@ -90,4 +148,4 @@ def main(page: ft.Page):
     page.go(page.route)
 
 
-ft.app(target=main, assets_dir="assets")
+ft.app(target=main, assets_dir="assets", upload_dir="attachments")
