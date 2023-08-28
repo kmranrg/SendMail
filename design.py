@@ -75,6 +75,46 @@ def main(page: ft.Page):
         page.snack_bar.open = True
         page.update()
 
+    homepage_content = ft.Column(
+        [
+            logo,
+            to,
+            subject,
+            ft.Row([
+                message_type,
+                ft.ElevatedButton(
+                    "Attachment",
+                    icon=ft.icons.ATTACH_FILE,
+                    on_click=lambda _: file_picker.pick_files(allow_multiple=True)
+                ),
+                ft.Column(
+                    ref=files
+                ),
+                ft.ElevatedButton(
+                    "Upload File(s)",
+                    ref=upload_button,
+                    icon=ft.icons.UPLOAD,
+                    on_click=upload_files,
+                    disabled=True
+                )
+            ],alignment="center"),
+            message,
+            
+            ft.Container(height=100),
+            ft.IconButton(
+                icon=ft.icons.SEND,
+                icon_color="#00598f",
+                icon_size=40,
+                tooltip="Send Mail",
+                on_click=send_mail
+            ),
+            ft.Container(height=10),
+            devInfo
+        ],
+        alignment='center',
+        horizontal_alignment='center',
+    )
+
     def route_change(route):
         page.views.clear()
         page.views.append(
@@ -96,44 +136,21 @@ def main(page: ft.Page):
                 ft.View(
                     '/homepage',
                     [
-                        logo,
-                        to,
-                        subject,
-                        ft.Row([
-                            message_type,
-                            ft.ElevatedButton(
-                                "Attachment",
-                                icon=ft.icons.ATTACH_FILE,
-                                on_click=lambda _: file_picker.pick_files(allow_multiple=True)
+                        ft.Container(
+                            content=homepage_content,
+                            gradient=ft.LinearGradient(
+                                begin=ft.alignment.top_center,
+                                end=ft.alignment.bottom_center,
+                                colors=[ft.colors.WHITE,'#dbeef7']
                             ),
-                            ft.Column(
-                                ref=files
-                            ),
-                            ft.ElevatedButton(
-                                "Upload File(s)",
-                                ref=upload_button,
-                                icon=ft.icons.UPLOAD,
-                                on_click=upload_files,
-                                disabled=True
-                            )
-                        ],alignment="center"),
-                        message,
-                        
-                        ft.Container(height=100),
-                        ft.IconButton(
-                            icon=ft.icons.SEND,
-                            icon_color="#00598f",
-                            icon_size=40,
-                            tooltip="Send Mail",
-                            on_click=send_mail
+                            border_radius=20,
+                            padding=20
                         ),
-                        ft.Container(height=10),
-                        devInfo
+                        
                     ],
                     scroll='always',
                     horizontal_alignment="center",
-                    padding=30,
-                    bgcolor='#dbeef7'
+                    padding=0,
                 )
             )
         page.update()
